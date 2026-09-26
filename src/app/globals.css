@@ -1,4 +1,4 @@
-:root { --ink: #1e293b; --accent: #0f766e; --paper: #f8fafc; }
+:root { --ink: #171717; --accent: #4d815b; --paper: #fbfcfa; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--paper); font-family: Arial, Helvetica, sans-serif; }
 button, select, input, textarea { font: inherit; }
