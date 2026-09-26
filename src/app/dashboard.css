@@ -20,7 +20,7 @@ button:disabled { background: #94a3b8; cursor: not-allowed; }
 @media (max-width: 720px) { .grid, .results, .form-grid, .offer-grid { grid-template-columns: 1fr; }.split-grid { grid-template-columns: 1fr; }.hero { padding:26px; min-height:240px; background-position:65% center; } }
 
 /* Strict Friends Included palette: black, white, and deep burgundy only. */
-.shell, .panel, .offer, .rolebar, .notice, .commission-strip span { color: #111 !important; }
+.shell, .panel, .offer, .rolebar, .notice { color: #111 !important; }.commission-strip span { color: #fff !important; }
 .offer { background: #f2f2f2 !important; border: 1px solid #7f1d1d; }
 .offer h2 { color: #111 !important; }.offer .eyebrow { color: #7f1d1d !important; }
 .offer-grid span { background: #e7e7e7 !important; color: #111 !important; border-left: 5px solid #7f1d1d; }
