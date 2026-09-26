@@ -21,7 +21,7 @@ export function Dashboard() {
   useEffect(() => { void load(); }, []);
   const canSell = actor?.role === "salesperson", canExpense = actor?.role === "expense_reporter", canManage = actor?.role === "manager";
   const commissionPool = useMemo(() => Number(sale.amount || 0) * .1, [sale.amount]);
-  const call = async (url: string, method: string, body: unknown) => { const response = await fetch(url, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json(); setMessage(result.message ?? result.error ?? "Done."); if (response.ok) await load(); };
+  const call = async (url: string, method: string, body: unknown) => { const response = await fetch(url, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json(); if (response.ok) await load(); setMessage(result.message ?? result.error ?? "Done."); };
   const submitSale = async (event: FormEvent) => { event.preventDefault(); await call("/api/sales", "POST", { actorId, ...sale, amount: Number(sale.amount) }); };
   const submitExpense = async (event: FormEvent) => { event.preventDefault(); await call("/api/expenses", "POST", { actorId, ...expense, amount: Number(expense.amount) }); };
   if (!data) return <main className="shell"><h1>Friends Included Finance</h1><p className="notice">{message}</p></main>;
