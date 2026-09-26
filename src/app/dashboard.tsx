@@ -1,71 +1,44 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { assertSplit, commissionForSale, euros, type Person, type Split } from "@/lib/finance";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { euros, type Person, type Split } from "@/lib/finance";
+import type { Employee, Expense, Sale } from "@/lib/domain";
+import { splitFromSale } from "@/lib/domain";
 import "./dashboard.css";
 
-type Role = "Svetlana de Monte Carlo" | "Richard Darling" | "Anastasia Ferrari" | "Jean-Claude Berzins" | "Kevin von Whatever";
-const roles: Role[] = ["Svetlana de Monte Carlo", "Richard Darling", "Anastasia Ferrari", "Jean-Claude Berzins", "Kevin von Whatever"];
-const people: Person[] = ["Richard", "Anastasia", "Jean-Claude"];
+type Results = { projects: Record<"A" | "B", { income: number; commissions: number; costs: number; result: number }>; company: { result: number }; overhead: number; awaitingAllocation: number; earned: Record<Person, number> };
+type Data = { employees: Employee[]; sales: Sale[]; expenses: Expense[]; results: Results };
+const persons: Person[] = ["Richard", "Anastasia", "Jean-Claude"];
 
 export function Dashboard() {
-  const [role, setRole] = useState<Role>("Svetlana de Monte Carlo");
-  const [amount, setAmount] = useState("1000");
-  const [split, setSplit] = useState<Split>({ Richard: 50, Anastasia: 30, "Jean-Claude": 20 });
-  const [message, setMessage] = useState("Choose a demonstration role to begin.");
-  const calculation = useMemo(() => {
-    try { return commissionForSale(Number(amount), split); } catch { return null; }
-  }, [amount, split]);
-
-  const checkSale = () => {
-    if (role === "Kevin von Whatever") return setMessage("Denied: Kevin may submit expenses, not sales.");
-    if (role === "Svetlana de Monte Carlo") return setMessage("Svetlana does not make routine sales entries.");
-    try { assertSplit(split); setMessage("Ready to save as Pending approval. The connected version will store this in Supabase."); }
-    catch (error) { setMessage(error instanceof Error ? error.message : "Please correct the commission split."); }
-  };
-
+  const [data, setData] = useState<Data | null>(null);
+  const [actorId, setActorId] = useState("");
+  const [message, setMessage] = useState("Loading the connected finance system...");
+  const [sale, setSale] = useState({ reference: "", customer: "", project: "A", description: "", amount: "", split: { Richard: 50, Anastasia: 30, "Jean-Claude": 20 } as Split });
+  const [expense, setExpense] = useState({ reference: "", description: "", category: "Materials", amount: "", proposedAllocation: "A" });
+  const actor = data?.employees.find((employee) => employee.id === actorId);
+  const load = async () => { const response = await fetch("/api/dashboard"); const body = await response.json(); if (!response.ok) return setMessage(body.error ?? "Could not load records."); setData(body); setActorId((current) => current || body.employees.find((employee: Employee) => employee.role === "manager")?.id || ""); setMessage("Ready."); };
+  useEffect(() => { void load(); }, []);
+  const canSell = actor?.role === "salesperson", canExpense = actor?.role === "expense_reporter", canManage = actor?.role === "manager";
+  const commissionPool = useMemo(() => Number(sale.amount || 0) * .1, [sale.amount]);
+  const call = async (url: string, method: string, body: unknown) => { const response = await fetch(url, { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json(); setMessage(result.message ?? result.error ?? "Done."); if (response.ok) await load(); };
+  const submitSale = async (event: FormEvent) => { event.preventDefault(); await call("/api/sales", "POST", { actorId, ...sale, amount: Number(sale.amount) }); };
+  const submitExpense = async (event: FormEvent) => { event.preventDefault(); await call("/api/expenses", "POST", { actorId, ...expense, amount: Number(expense.amount) }); };
+  if (!data) return <main className="shell"><h1>Friends Included Finance</h1><p className="notice">{message}</p></main>;
   return <main className="shell">
-    <header>
-      <p className="eyebrow">Friends Included Ltd</p>
-      <h1>Finance control room</h1>
-      <p className="subtitle">Wedding Guests for Hire - Day 4 homework</p>
-    </header>
-
-    <section className="rolebar" aria-label="Demonstration role selector">
-      <label htmlFor="role">Demonstration role</label>
-      <select id="role" value={role} onChange={(event) => setRole(event.target.value as Role)}>
-        {roles.map((item) => <option key={item}>{item}</option>)}
-      </select>
-      <span>{role === "Svetlana de Monte Carlo" ? "Manager controls available" : "Only your permitted actions are available"}</span>
-    </section>
-
+    <header><p className="eyebrow">Friends Included Ltd</p><h1>Finance control room</h1><p className="subtitle">Wedding Guests for Hire - Day 4 homework</p></header>
+    <section className="rolebar"><label htmlFor="role">Demonstration role</label><select id="role" value={actorId} onChange={(event) => setActorId(event.target.value)}>{data.employees.map((employee) => <option value={employee.id} key={employee.id}>{employee.display_name}</option>)}</select><span>{actor?.role === "manager" ? "Manager controls available" : "Permissions are checked before every action"}</span></section>
+    <p className="notice" role="status">{message}</p>
     <section className="grid">
-      <article className="panel">
-        <h2>Enter a sale</h2>
-        <p className="muted">All sales start pending and count only after manager approval.</p>
-        <label>Sale amount in euros<input type="number" min="0.01" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} /></label>
-        <h3>Proposed commission split</h3>
-        <div className="split-grid">
-          {people.map((person) => <label key={person}>{person}<input type="number" min="0" max="100" value={split[person]} onChange={(event) => setSplit({ ...split, [person]: Number(event.target.value) })} /></label>)}
-        </div>
-        <button onClick={checkSale}>Validate sale entry</button>
-        <p className="notice" role="status">{message}</p>
-      </article>
-
-      <article className="panel calculation">
-        <h2>Commission preview</h2>
-        {calculation ? <>
-          <strong>{euros(calculation.pool)} total commission pool</strong>
-          <dl>{people.map((person) => <div key={person}><dt>{person}</dt><dd>{split[person]}% - {euros(calculation.amounts[person])}</dd></div>)}</dl>
-          <p className="muted">Preview only. Commission is earned only when Svetlana approves the sale.</p>
-        </> : <p className="notice">Enter a positive amount and a split totalling 100%.</p>}
-      </article>
+      <form className="panel" onSubmit={submitSale}><h2>Submit a sale</h2><p className="muted">Sales save as Pending approval and do not count yet.</p><div className="form-grid"><label>Reference<input required placeholder="S01" value={sale.reference} onChange={(e) => setSale({ ...sale, reference: e.target.value })} /></label><label>Customer<input required value={sale.customer} onChange={(e) => setSale({ ...sale, customer: e.target.value })} /></label><label>Project<select value={sale.project} onChange={(e) => setSale({ ...sale, project: e.target.value })}><option>A</option><option>B</option></select></label><label>Amount EUR<input required type="number" min="0.01" step="0.01" value={sale.amount} onChange={(e) => setSale({ ...sale, amount: e.target.value })} /></label></div><label>Description<textarea required value={sale.description} onChange={(e) => setSale({ ...sale, description: e.target.value })} /></label><h3>Proposed commission split</h3><div className="split-grid">{persons.map((person) => <label key={person}>{person}<input type="number" min="0" max="100" value={sale.split[person]} onChange={(e) => setSale({ ...sale, split: { ...sale.split, [person]: Number(e.target.value) } })} /></label>)}</div><p className="muted">Pool preview: {euros(commissionPool)}. Shares must total exactly 100%.</p><button disabled={!canSell}>Submit pending sale</button>{!canSell && <p className="muted">Choose a salesperson to submit a sale.</p>}</form>
+      <form className="panel" onSubmit={submitExpense}><h2>Submit an expense</h2><p className="muted">Expenses reduce company result as soon as they are saved.</p><div className="form-grid"><label>Reference<input required placeholder="E01" value={expense.reference} onChange={(e) => setExpense({ ...expense, reference: e.target.value })} /></label><label>Amount EUR<input required type="number" min="0.01" step="0.01" value={expense.amount} onChange={(e) => setExpense({ ...expense, amount: e.target.value })} /></label><label>Category<select value={expense.category} onChange={(e) => setExpense({ ...expense, category: e.target.value })}><option>Materials</option><option>Travel</option><option>Other</option></select></label><label>Proposed allocation<select value={expense.proposedAllocation} onChange={(e) => setExpense({ ...expense, proposedAllocation: e.target.value })}><option>A</option><option>B</option><option>Company overhead</option></select></label></div><label>Description<textarea required value={expense.description} onChange={(e) => setExpense({ ...expense, description: e.target.value })} /></label><button disabled={!canExpense}>Submit expense</button>{!canExpense && <p className="muted">Choose Kevin to submit an expense.</p>}</form>
     </section>
-
-    <section className="grid results">
-      <article className="panel"><h2>Project A</h2><p className="metric">€0.00</p><p className="muted">Approved income, commissions and allocated expenses will appear here.</p></article>
-      <article className="panel"><h2>Project B</h2><p className="metric">€0.00</p><p className="muted">Approved income, commissions and allocated expenses will appear here.</p></article>
-      <article className="panel"><h2>Company result</h2><p className="metric">€0.00</p><p className="muted">Includes all recorded expenses, including unallocated ones.</p></article>
-    </section>
+    <section className="grid results"><Result title="Project A" value={data.results.projects.A.result} detail={`Income ${euros(data.results.projects.A.income)} | commissions ${euros(data.results.projects.A.commissions)} | expenses ${euros(data.results.projects.A.costs)}`} /><Result title="Project B" value={data.results.projects.B.result} detail={`Income ${euros(data.results.projects.B.income)} | commissions ${euros(data.results.projects.B.commissions)} | expenses ${euros(data.results.projects.B.costs)}`} /><Result title="Company result" value={data.results.company.result} detail={`Overhead ${euros(data.results.overhead)} | awaiting allocation ${euros(data.results.awaitingAllocation)}`} /></section>
+    <section className="panel"><h2>Commission earned</h2><div className="commission-strip">{persons.map((person) => <span key={person}><b>{person}</b> {euros(data.results.earned[person])}</span>)}</div></section>
+    <section className="manager panel"><h2>Manager decisions</h2>{!canManage && <p className="notice">Choose Svetlana de Monte Carlo to approve or correct transactions.</p>}{canManage && <><h3>Pending sales</h3><RecordTable>{data.sales.filter((record) => record.status === "pending").map((record) => <tr key={record.reference}><td>{record.reference}</td><td>{record.customer}</td><td>{record.project}</td><td>{euros(Number(record.amount))}</td><td>{record.proposed_richard_pct}/{record.proposed_anastasia_pct}/{record.proposed_jean_claude_pct}%</td><td><button onClick={() => void call(`/api/sales/${record.reference}/approve`, "PATCH", { actorId, split: splitFromSale(record) })}>Approve proposed split</button></td></tr>)}</RecordTable><h3>Expenses awaiting allocation</h3><RecordTable>{data.expenses.filter((record) => record.status === "awaiting_allocation").map((record) => <ExpenseDecision key={record.reference} record={record} onAllocate={(allocation) => void call(`/api/expenses/${record.reference}/allocate`, "PATCH", { actorId, allocation })} />)}</RecordTable></>}</section>
+    <section className="panel"><h2>Records</h2><p className="muted">Sync status is stored per record; a failed sync never changes financial totals.</p><RecordTable>{data.sales.map((record) => <tr key={record.reference}><td>{record.reference}</td><td>Sale</td><td>{record.status}</td><td>{record.sheets_sync_status}</td><td>{euros(Number(record.amount))}</td><td /></tr>)}{data.expenses.map((record) => <tr key={record.reference}><td>{record.reference}</td><td>Expense</td><td>{record.status}</td><td>{record.sheets_sync_status}</td><td>{euros(Number(record.amount))}</td><td /></tr>)}</RecordTable></section>
   </main>;
 }
+function Result({ title, value, detail }: { title: string; value: number; detail: string }) { return <article className="panel"><h2>{title}</h2><p className="metric">{euros(value)}</p><p className="muted">{detail}</p></article>; }
+function RecordTable({ children }: { children: React.ReactNode }) { return <div className="table-wrap"><table><thead><tr><th>Reference</th><th>Type / customer</th><th>Project / status</th><th>Amount / sync</th><th>Details</th><th>Action</th></tr></thead><tbody>{children}</tbody></table></div>; }
+function ExpenseDecision({ record, onAllocate }: { record: Expense; onAllocate: (value: string) => void }) { const [value, setValue] = useState(record.proposed_allocation); return <tr><td>{record.reference}</td><td>{record.description}</td><td>{record.proposed_allocation}</td><td>{euros(Number(record.amount))}</td><td><select value={value} onChange={(e) => setValue(e.target.value as Expense["proposed_allocation"])}><option>A</option><option>B</option><option>Company overhead</option></select></td><td><button onClick={() => onAllocate(value)}>Confirm allocation</button></td></tr>; }

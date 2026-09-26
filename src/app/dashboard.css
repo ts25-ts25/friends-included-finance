@@ -10,7 +10,10 @@ select, input { border: 1px solid #cbd5e1; border-radius: 8px; padding: 9px 10px
 .panel { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 8px 24px rgba(15, 23, 42, .05); }
 .panel h2 { margin-top: 0; }.panel h3 { font-size: 1rem; margin-top: 22px; }
 .panel > label, .split-grid label { display: grid; gap: 7px; font-weight: 600; font-size: .9rem; }.panel > label input { width: 100%; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }.form-grid label { display: grid; gap: 7px; font-weight: 600; font-size: .9rem; }.form-grid input, .form-grid select, textarea { width: 100%; }textarea { min-height: 72px; resize: vertical; }
 .split-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }.split-grid input { min-width: 0; width: 100%; }
 button { margin-top: 20px; border: 0; border-radius: 8px; padding: 10px 14px; background: #0f766e; color: white; cursor: pointer; font-weight: 700; }button:hover { background: #115e59; }
+button:disabled { background: #94a3b8; cursor: not-allowed; }
 .notice { background: #f1f5f9; border-radius: 8px; padding: 10px; font-size: .92rem; }.calculation strong { color: #0f766e; }.calculation dl { margin: 18px 0; }.calculation dl div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }.calculation dd { margin: 0; font-weight: 700; }.metric { font-size: 2rem; font-weight: 800; margin: 8px 0; color: #0f766e; }
-@media (max-width: 720px) { .grid, .results { grid-template-columns: 1fr; }.split-grid { grid-template-columns: 1fr; } }
+.commission-strip { display: flex; flex-wrap: wrap; gap: 16px; }.commission-strip span { background: #ecfdf5; padding: 10px; border-radius: 8px; }.manager { margin-top: 22px; }.table-wrap { overflow-x: auto; }table { width: 100%; border-collapse: collapse; font-size: .9rem; }th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }th { color: #475569; }td button { margin: 0; padding: 7px 10px; font-size: .8rem; }
+@media (max-width: 720px) { .grid, .results, .form-grid { grid-template-columns: 1fr; }.split-grid { grid-template-columns: 1fr; } }
