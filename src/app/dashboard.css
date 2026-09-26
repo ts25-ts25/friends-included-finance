@@ -1,6 +1,6 @@
 .shell { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px; }
 header { margin-bottom: 28px; }.hero { min-height: 275px; display:flex; align-items:center; padding:36px; border:1px solid #e7ebe4; border-radius:24px; background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.9) 48%,rgba(255,255,255,.14) 76%),url('/wedding-finance-hero.png') center/cover; }.hero-copy { max-width:460px; color:#4b5563; line-height:1.55; }
-.offer { margin:0 0 22px; padding:28px; border-radius:18px; background:#faeded; color:#111; border:1px solid #7f1d1d; }.offer h2 { margin:7px 0 18px; font-size:clamp(1.45rem,3vw,2rem); }.offer-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }.offer-grid span { background:#fff; padding:13px; border-radius:10px; font-weight:600; border-top:3px solid #7f1d1d; }
+.offer { margin:0 0 22px; padding:28px; border-radius:18px; background:#f2f2f2; color:#111; border:1px solid #7f1d1d; }.offer h2 { margin:7px 0 18px; font-size:clamp(1.45rem,3vw,2rem); }.offer-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }.offer-grid span { background:#fff; padding:13px; border-radius:10px; font-weight:600; border-top:3px solid #7f1d1d; }
 .eyebrow { margin: 0; color: #7f1d1d; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; }
 h1 { margin: 8px 0; font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: -.04em; }
 .subtitle, .muted { color: #475569; }
@@ -21,7 +21,7 @@ button:disabled { background: #94a3b8; cursor: not-allowed; }
 
 /* Strict Friends Included palette: black, white, and deep burgundy only. */
 .shell, .panel, .offer, .rolebar, .notice, .commission-strip span { color: #111 !important; }
-.offer { background: #111 !important; border: 1px solid #111; }
+.offer { background: #f2f2f2 !important; border: 1px solid #7f1d1d; }
 .offer h2 { color: #111 !important; }.offer .eyebrow { color: #7f1d1d !important; }
 .offer-grid span { background: #fff !important; color: #111 !important; border-left: 5px solid #7f1d1d; }
 .subtitle, .muted, .hero-copy { color: #111 !important; }
