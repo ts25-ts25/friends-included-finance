@@ -18,3 +18,16 @@ button:disabled { background: #94a3b8; cursor: not-allowed; }
 .notice { background: #f3f3f3; border-left: 4px solid #7f1d1d; border-radius: 8px; padding: 10px; font-size: .92rem; }.calculation strong { color: #7f1d1d; }.calculation dl { margin: 18px 0; }.calculation dl div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }.calculation dd { margin: 0; font-weight: 700; }.metric { font-size: 2rem; font-weight: 800; margin: 8px 0; color: #111; }
 .commission-strip { display: flex; flex-wrap: wrap; gap: 16px; }.commission-strip span { background: #fff1f1; padding: 10px; border-radius: 8px; }.manager { margin-top: 22px; }.table-wrap { overflow-x: auto; }table { width: 100%; border-collapse: collapse; font-size: .9rem; }th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }th { color: #475569; }td button { margin: 0; padding: 7px 10px; font-size: .8rem; }
 @media (max-width: 720px) { .grid, .results, .form-grid, .offer-grid { grid-template-columns: 1fr; }.split-grid { grid-template-columns: 1fr; }.hero { padding:26px; min-height:240px; background-position:65% center; } }
+
+/* Strict Friends Included palette: black, white, and deep burgundy only. */
+.shell, .panel, .offer, .rolebar, .notice, .commission-strip span { color: #111 !important; }
+.offer { background: #111 !important; border: 1px solid #111; }
+.offer h2, .offer .eyebrow { color: #fff !important; }
+.offer-grid span { background: #fff !important; color: #111 !important; border-left: 5px solid #7f1d1d; }
+.subtitle, .muted, .hero-copy { color: #111 !important; }
+.rolebar { background: #fff !important; border: 2px solid #7f1d1d; }
+.rolebar span { color: #7f1d1d !important; }
+.notice { background: #fff !important; color: #111 !important; }
+.metric, .calculation strong { color: #7f1d1d !important; }
+select, input, textarea { color: #111 !important; border-color: #111 !important; outline-color: #7f1d1d; }
+button { background: #111 !important; } button:hover { background: #7f1d1d !important; }
